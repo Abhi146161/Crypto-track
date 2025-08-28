@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "./components/Header";
-import News from "./components/News";
 import SearchBar from "./components/SearchBar";
 import CryptoList from "./components/CryptoList";
 import Chart from "./components/Chart";
@@ -32,7 +31,7 @@ function Home() {
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black min-h-screen text-white">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Header />
-        <News />
+        
         <SearchBar search={search} setSearch={setSearch} />
 
         {loading ? (
