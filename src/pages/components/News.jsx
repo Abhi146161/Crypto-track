@@ -7,9 +7,8 @@ function News() {
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    // Proxy ke liye direct /api/news use karenge
     axios
-      .get("/api/news")
+      .get("/api/news") // Proxy ke liye direct /api/news
       .then((res) => {
         setNews(res.data || []);
         setLoading(false);
