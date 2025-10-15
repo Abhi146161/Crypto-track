@@ -6,7 +6,16 @@ function SearchBar({ search, setSearch }) {
         placeholder="🔍 Search coin..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="p-3 border-2 border-gray-600 bg-gray-800 text-white rounded-xl w-80 text-center focus:outline-none focus:ring-2 focus:ring-green-400 shadow-lg"
+        className="
+          p-3 w-80 text-white text-center 
+          rounded-2xl 
+          border-2 border-transparent 
+          bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 
+          shadow-lg 
+          focus:outline-none focus:ring-4 focus:ring-green-400 focus:border-transparent
+          placeholder:text-gray-400 
+          hover:scale-105 transform transition duration-300
+        "
       />
     </div>
   );

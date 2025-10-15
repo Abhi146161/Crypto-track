@@ -1,57 +1,92 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 function News() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+  const sectionRef = useRef(null);
 
   useEffect(() => {
-    axios
-      .get("/api/news") // Proxy ke liye direct /api/news
-      .then((res) => {
-        setNews(res.data || []);
+    const fetchNews = async () => {
+      try {
+        const res = await axios.get(
+          "https://min-api.cryptocompare.com/data/v2/news/?lang=EN"
+        );
+        setNews(res.data.Data.slice(0, 9));
         setLoading(false);
-      })
-      .catch((e) => {
-        console.error("Fetch failed:", e?.response?.data || e.message);
-        setErr("Couldn't load news.");
+      } catch (err) {
+        console.error("Error fetching news:", err);
         setLoading(false);
-      });
+      }
+    };
+    fetchNews();
   }, []);
 
-  return (
-    <div className="mt-12 px-4">
-      <h2 className="text-3xl font-bold mb-8 text-green-400 text-center animate-bounce">
-        📰 Latest Crypto News
-      </h2>
+  useEffect(() => {
+    if (!sectionRef.current) return;
 
-      {loading ? (
-        <p className="text-center text-gray-400 animate-pulse">Loading news...</p>
-      ) : err ? (
-        <p className="text-center text-red-400 animate-pulse">{err}</p>
-      ) : news.length === 0 ? (
-        <p className="text-center text-gray-400 animate-pulse">No news available</p>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {news.map((item, i) => (
-            <div
-              key={i}
-              className="p-5 bg-gradient-to-r from-gray-800 to-gray-700 rounded-2xl shadow-lg transform transition duration-500 hover:scale-105 hover:shadow-2xl hover:from-gray-700 hover:to-gray-600 cursor-pointer"
+    gsap.fromTo(
+      sectionRef.current.children,
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1,
+        y: 0,
+        stagger: 0.15,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 85%",
+        },
+      }
+    );
+  }, [news]);
+
+  if (loading)
+    return (
+      <p className="text-center text-gray-300 text-lg animate-pulse">
+        Loading latest news...
+      </p>
+    );
+
+  return (
+    <div ref={sectionRef} className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-8 px-2 md:px-4">
+      {news.map((item, i) => (
+        <motion.div
+          key={item.id}
+          className="bg-gradient-to-br from-gray-800/60 via-gray-900/60 to-black/60 backdrop-blur-lg rounded-2xl p-5 shadow-xl hover:shadow-blue-500/30 transition duration-300 hover:scale-[1.03] border border-gray-700/50"
+          whileHover={{ y: -5 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1, duration: 0.4 }}
+        >
+          <motion.img
+            src={item.imageurl}
+            alt={item.title}
+            className="rounded-xl mb-4 w-full h-44 object-cover"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.4 }}
+          />
+          <h3 className="text-xl font-semibold mb-2 text-blue-300 line-clamp-2">{item.title}</h3>
+          <p className="text-gray-400 text-sm mb-4 line-clamp-3">{item.body.slice(0, 120)}...</p>
+          <div className="flex items-center justify-between">
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green-400 font-semibold hover:text-green-300 transition duration-200"
             >
-              <a
-                href={item.url || item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-lg font-semibold text-blue-400 hover:text-blue-300 hover:underline transition duration-300"
-              >
-                {item.title}
-              </a>
-              <p className="text-sm text-gray-400 mt-3">{item.domain || item.source}</p>
-            </div>
-          ))}
-        </div>
-      )}
+              Read More →
+            </a>
+            <span className="text-xs text-gray-500">{new Date(item.published_on * 1000).toLocaleDateString()}</span>
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 }
